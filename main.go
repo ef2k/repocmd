@@ -16,6 +16,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type stargazers struct {
+	TotalCount githubql.Int `json:"totalCount"`
+}
+
+type watchers struct {
+	TotalCount githubql.Int `json:"totalCount"`
+}
+
+type forks struct {
+	TotalCount githubql.Int `json:"totalCount"`
+}
+
 type repository struct {
 	ID            githubql.ID       `json:"id"`
 	Name          githubql.String   `json:"name"`
@@ -24,8 +36,13 @@ type repository struct {
 	URL           githubql.URI      `json:"url"`
 	CreatedAt     githubql.DateTime `json:"createdAt"`
 	UpdatedAt     githubql.DateTime `json:"updatedAt"`
+	PushedAt      githubql.DateTime `json:"pushedAt"`
 	IsArchived    githubql.Boolean  `json:"isArchived"`
+	IsFork        githubql.Boolean  `json:"isFork"`
 	IsPrivate     githubql.Boolean  `json:"isPrivate"`
+	Stargazers    stargazers        `json:"stargazers"`
+	Watchers      watchers          `json:"watchers"`
+	Forks         forks             `json:"forks"`
 }
 
 type fromOldestTimeSlice []repository
