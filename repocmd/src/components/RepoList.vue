@@ -11,25 +11,36 @@
         <a href="#">Public</a> |
         <a href="#">Private</a>
       </p>
-      <repo v-for="repo in repos" v-bind:key="repo.id" :repo="repo"></repo>
+      <repo v-for="repo in repos" v-bind:key="repo.id" :repo="repo" v-on:checked="addToSelectList" v-on:unchecked="removeFromSelectList"></repo>
+      <transition name="fade">
+        <div v-if="hasSelected">
+          <select-list :repos="selected"></select-list>
+        </div>
+      </transition>
     </div>
  </div>
 </template>
 
 <script>
 import Repo from './Repo'
+import SelectList from './SelectList'
 
 export default {
   components: {
-    Repo
+    Repo,
+    SelectList
   },
   data () {
     return {
       loading: false,
-      repos: []
+      repos: [],
+      selected: {}
     }
   },
   computed: {
+    hasSelected () {
+      return Object.keys(this.selected).length > 0
+    },
     repoLen () {
       if (this.repos) {
         return this.repos.length
@@ -43,11 +54,19 @@ export default {
   methods: {
     fetchRepos () {
       this.loading = true
-      this.$http.get('http://localhost:5000/repos')
+      this.$http.get('http://localhost:3000/repos')
         .then(response => {
           this.repos = response.data
           this.loading = false
         })
+    },
+    addToSelectList (repo) {
+      // this.selected[repo.id] = repo
+      this.$set(this.selected, repo.id, repo)
+    },
+    removeFromSelectList (repo) {
+      // delete this.selected[repo.id]
+      this.$delete(this.selected, repo.id)
     }
   }
 }
@@ -82,5 +101,13 @@ export default {
   }
   .description {
     line-height: 1.5;
+  }
+
+  /* Fade transitions */
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
 </style>
