@@ -25,7 +25,7 @@
       </p>
     </div>
     <div class="card-aside">
-      <span v-on:click="check" v-bind:class="{ checked: checked }">
+      <span v-on:click="check" v-bind:class="{checked: checked}">
         <i class="checkmark" data-feather="check-circle" ></i>
       </span>
       <!-- <i class="settings" data-feather="settings"></i> -->
@@ -37,11 +37,6 @@
 import feather from 'feather-icons'
 export default {
   props: ['repo'],
-  data () {
-    return {
-      checked: false
-    }
-  },
   computed: {
     commitURL () {
       return `https://github.com/${this.repo.nameWithOwner}/commit/${this.commitSHA}`
@@ -51,12 +46,14 @@ export default {
     },
     commitSHA () {
       return this.repo.ref.target.commit.abbreviatedOid
+    },
+    checked () {
+      return this.repo.checked
     }
   },
   methods: {
     check () {
-      this.checked = !this.checked
-      if (this.checked) {
+      if (!this.repo.checked) {
         this.$emit('checked', this.repo)
       } else {
         this.$emit('unchecked', this.repo)

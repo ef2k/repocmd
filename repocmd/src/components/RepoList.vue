@@ -5,13 +5,13 @@
     </div>
     <div v-else>
       <h2>Repositories ({{repoLen}})</h2>
-      <p>
-        Filter
-        <a href="#">All</a> |
-        <a href="#">Public</a> |
-        <a href="#">Private</a>
+      <p class="filter-options">
+        Filter by:
+        <a href="#" @click="filterBy('all')" :disabled="isFilteredAll">All</a> |
+        <a href="#" @click="filterBy('public')" :disabled="isFilteredPublic">Public</a> |
+        <a href="#" @click="filterBy('private')" :disabled="isFilteredPrivate">Private</a>
       </p>
-      <repo v-for="repo in repos" v-bind:key="repo.id" :repo="repo" v-on:checked="addToSelectList" v-on:unchecked="removeFromSelectList"></repo>
+      <repo v-for="repo in filteredList" v-bind:key="repo.id" :repo="repo" @checked="checkRepo" @unchecked="uncheckRepo"></repo>
       <transition name="fade">
         <div v-if="hasSelected">
           <select-list :repos="selected"></select-list>
@@ -33,6 +33,7 @@ export default {
   data () {
     return {
       loading: false,
+      filterOption: 'all',
       repos: [],
       selected: {}
     }
@@ -42,10 +43,27 @@ export default {
       return Object.keys(this.selected).length > 0
     },
     repoLen () {
-      if (this.repos) {
-        return this.repos.length
+      if (this.filteredList) {
+        return this.filteredList.length
       }
       return ''
+    },
+    isFilteredAll () {
+      return this.filterOption === 'all'
+    },
+    isFilteredPublic () {
+      return this.filterOption === 'public'
+    },
+    isFilteredPrivate () {
+      return this.filterOption === 'private'
+    },
+    filteredList () {
+      if (this.filterOption === 'private') {
+        return this.repos.filter(repo => repo.isPrivate)
+      } else if (this.filterOption === 'public') {
+        return this.repos.filter(repo => !repo.isPrivate)
+      }
+      return this.repos
     }
   },
   created () {
@@ -60,13 +78,24 @@ export default {
           this.loading = false
         })
     },
+    checkRepo (repo) {
+      const item = this.repos.find(item => item.id === repo.id)
+      this.$set(item, 'checked', true)
+      this.addToSelectList(repo)
+    },
+    uncheckRepo (repo) {
+      const item = this.repos.find(item => item.id === repo.id)
+      this.$set(item, 'checked', false)
+      this.removeFromSelectList(repo)
+    },
     addToSelectList (repo) {
-      // this.selected[repo.id] = repo
       this.$set(this.selected, repo.id, repo)
     },
     removeFromSelectList (repo) {
-      // delete this.selected[repo.id]
       this.$delete(this.selected, repo.id)
+    },
+    filterBy (option) {
+      this.filterOption = option
     }
   }
 }
@@ -101,6 +130,15 @@ export default {
   }
   .description {
     line-height: 1.5;
+  }
+
+  .filter-options a {
+    color: var(--bright-blue);
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .filter-options a[disabled=disabled] {
+    color: var(--black);
   }
 
   /* Fade transitions */
