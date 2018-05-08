@@ -1,5 +1,8 @@
 <template>
   <div id="app">
+    <div class="navbar">
+
+    </div>
     <RepoList/>
   </div>
 </template>
@@ -24,10 +27,21 @@ export default {
   --select-green: #E1F9EF;
 }
 
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
 #app {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--black);
+  display: grid;
+  grid-template-columns: 50px auto;
+  grid-column-gap: 0px;
+}
+.navbar {
+  background: black;
 }
 </style>
