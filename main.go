@@ -16,6 +16,21 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type commit struct {
+	ID              githubql.ID     `json:"id"`
+	AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
+	MessageHeadline githubql.String `json:"message"`
+}
+
+type target struct {
+	Commit commit `json:"commit" graphql:"... on Commit"`
+}
+
+type commitComments struct {
+	Nodes      []commit
+	TotalCount githubql.Int `json:"totalCount"`
+}
+
 type stargazers struct {
 	TotalCount githubql.Int `json:"totalCount"`
 }
@@ -26,6 +41,10 @@ type watchers struct {
 
 type forks struct {
 	TotalCount githubql.Int `json:"totalCount"`
+}
+
+type ref struct {
+	Target target `json:"target"`
 }
 
 type repository struct {
@@ -43,6 +62,7 @@ type repository struct {
 	Stargazers    stargazers        `json:"stargazers"`
 	Watchers      watchers          `json:"watchers"`
 	Forks         forks             `json:"forks"`
+	Ref           ref               `json:"ref" graphql:"ref(qualifiedName:master)"`
 }
 
 type fromOldestTimeSlice []repository
@@ -51,7 +71,7 @@ func (r fromOldestTimeSlice) Len() int {
 	return len(r)
 }
 func (r fromOldestTimeSlice) Less(i, j int) bool {
-	return r[i].UpdatedAt.After(r[j].UpdatedAt.Time)
+	return r[i].PushedAt.After(r[j].PushedAt.Time)
 }
 func (r fromOldestTimeSlice) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
@@ -65,7 +85,7 @@ var q struct {
 				EndCursor   githubql.String
 				HasNextPage githubql.Boolean
 			}
-		} `graphql:"repositories(first:100, after:$repositoriesCursor, affiliations:[OWNER])"`
+		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[OWNER])"`
 	}
 }
 
@@ -160,5 +180,5 @@ func main() {
 	r.HandleFunc("/repos", handlePatchRepo).Methods("PATCH")
 	http.Handle("/", r)
 
-	http.ListenAndServe(":5000", nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
