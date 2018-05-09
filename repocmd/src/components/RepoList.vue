@@ -1,6 +1,6 @@
 <template>
 <div class="repo-list">
-  <div class="sidebar">
+  <div class="side-pane" :style="{ height: winHeight+'px', maxHeight: winHeight+'px'}">
     <div v-if="loading">
       <p><i data-feather="github"></i> Fetching the latest repo data...</p>
     </div>
@@ -14,7 +14,7 @@
     </div>
     <div v-else>
       <div>
-        <h2>Owned Repositories ({{repoLen}})</h2>
+        <h2>Repositories ({{repoLen}})</h2>
         <p class="filter-options">
           Filter by:
           <a href="#" @click="filterBy('all')" :disabled="isFilteredAll">All</a> |
@@ -24,27 +24,25 @@
         <repo v-for="repo in filteredList" v-bind:key="repo.id" :repo="repo" @checked="checkRepo" @unchecked="uncheckRepo"></repo>
       </div>
     </div>
- </div>
-
-  <div class="repo-summary">
+  </div>
+  <div class="main-pane" :style="{ height: winHeight+'px', maxHeight: winHeight+'px'}">
     <transition name="fade">
-      <div v-if="hasSelected">
-        <select-list :repos="selected"></select-list>
-      </div>
+      <selection-page v-if="hasSelected" :repos="selected"/>
     </transition>
   </div>
-  </div>
+</div>
 </template>
 
 <script>
 import Repo from './Repo'
-import SelectList from './SelectList'
+import SelectionPage from './SelectionPage'
+
 import feather from 'feather-icons'
 
 export default {
   components: {
     Repo,
-    SelectList
+    SelectionPage
   },
   data () {
     return {
@@ -52,7 +50,8 @@ export default {
       error: '',
       filterOption: 'all',
       repos: [],
-      selected: {}
+      selected: {},
+      winHeight: document.documentElement.clientHeight
     }
   },
   computed: {
@@ -88,6 +87,10 @@ export default {
   },
   mounted () {
     feather.replace()
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.handleResize)
   },
   methods: {
     fetchRepos () {
@@ -120,58 +123,28 @@ export default {
     },
     filterBy (option) {
       this.filterOption = option
+    },
+    handleResize () {
+      this.winHeight = document.documentElement.clientHeight
     }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-
+<style lang="scss" scoped>
   .repo-list {
     display: grid;
-    grid-template-columns: 475px auto;
-    grid-column-gap: 0px;
+    grid-template-columns: 480px auto;
+    grid-column-gap: 20px;
   }
-  .sidebar {
-    padding: 10px;
+  .side-pane {
     border-right: 1px solid #D8D8D8;
-    max-height: 800px;
     overflow-y: scroll;
   }
-  .repo-summary {
-    padding: 10px;
+  .main-pane {
+    position: relative;
   }
-
-  .repo {
-    background: var(--light-gray);
-    padding: 5px 30px;
-    margin: 20px auto;
-    display: block;
-    border: 1px solid rgba(27, 30, 34, 0.04);
-  }
-  .title {
-    font-size: 22px;
-  }
-  .title a {
-    text-decoration: none;
-    color: #3242FF;
-  }
-  .private-badge {
-    margin-left: 5px;
-    font-size: 12px;
-    line-height: 11px;
-    padding: 3px 4px;
-    border: 1px solid rgba(27, 30, 34, 0.15);
-    box-shadow: none;
-    color: var(--black);
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .description {
-    line-height: 1.5;
-  }
-
   .filter-options a {
     color: var(--bright-blue);
     text-decoration: none;
@@ -179,13 +152,5 @@ export default {
   }
   .filter-options a[disabled=disabled] {
     color: var(--black);
-  }
-
-  /* Fade transitions */
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
-  }
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-    opacity: 0;
   }
 </style>

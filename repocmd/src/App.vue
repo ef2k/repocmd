@@ -1,8 +1,6 @@
 <template>
   <div id="app">
-    <div class="navbar">
-
-    </div>
+    <div class="navbar"></div>
     <RepoList/>
   </div>
 </template>
@@ -30,6 +28,15 @@ export default {
 html, body {
   padding: 0;
   margin: 0;
+  height: 100%;
+}
+
+/* Fade transitions */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 
 #app {
@@ -39,7 +46,7 @@ html, body {
   color: var(--black);
   display: grid;
   grid-template-columns: 50px auto;
-  grid-column-gap: 0px;
+  grid-column-gap: 25px;
 }
 .navbar {
   background: black;

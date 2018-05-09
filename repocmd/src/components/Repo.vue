@@ -120,6 +120,17 @@ export default {
     padding: 0;
     margin: 0;
   }
+  .private-badge {
+    margin-left: 5px;
+    font-size: 12px;
+    line-height: 11px;
+    padding: 3px 4px;
+    border: 1px solid rgba(27, 30, 34, 0.15);
+    box-shadow: none;
+    color: var(--black);
+    display: inline-block;
+    vertical-align: middle;
+  }
   .mini-badge {
     margin-left: 5px;
     font-size: 12px;

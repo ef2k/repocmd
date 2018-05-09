@@ -1,5 +1,5 @@
 <template>
-  <div class="select-item">
+  <div class="selection">
     <div class="icon-wrapper">
       <i data-feather="github"></i>
     </div>
@@ -25,8 +25,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .select-item {
-    margin: 30px 0;
+  .selection {
+    margin: 0 0 30px 0;
     display: grid;
     grid-template-columns: 40px auto;
     grid-column-gap: 5px;
