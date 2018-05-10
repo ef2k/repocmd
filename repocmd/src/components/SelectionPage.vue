@@ -80,9 +80,9 @@ export default {
 .selection-header {
   overflow: auto;
   padding: 0 20px;
-  text-align: center;
+  text-align: left;
   h3 {
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 </style>

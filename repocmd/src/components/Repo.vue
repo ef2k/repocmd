@@ -70,9 +70,8 @@ export default {
 <style scoped>
   .repo {
     margin: 10px 0;
-    padding: 30px;
+    padding: 24px 22px;
     background: var(--light-gray);
-    border: 1px solid rgba(27, 30, 34, 0.04);
     overflow: auto;
     display: grid;
     max-width: 400px;
@@ -158,7 +157,7 @@ export default {
     overflow: wrap;
   }
   .title {
-    font-size: 22px;
+    font-size: 18px;
     margin: 0;
     margin-bottom: 10px;
   }
@@ -169,10 +168,12 @@ export default {
   .description {
     line-height: 1.5;
     margin-bottom: 10px;
+    font-size: 14px;
   }
   .stats {
     display: block;
     margin-bottom: 15px;
+    font-size: 14px;
   }
   .pushed-at {
     font-size: 14px;

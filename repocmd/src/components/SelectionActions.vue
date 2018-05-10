@@ -45,10 +45,11 @@ export default {
 
 <style lang="scss" scoped>
   .selection-actions {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
+    // position: absolute;
+    // left: 0;
+    // bottom: 0;
+    // width: 100%;
+
     border-top: 1px solid #dddddd;
     text-align: center;
     padding: 20px 0;

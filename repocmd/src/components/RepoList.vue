@@ -135,7 +135,7 @@ export default {
 <style lang="scss" scoped>
   .repo-list {
     display: grid;
-    grid-template-columns: 480px auto;
+    grid-template-columns: 470px auto;
     grid-column-gap: 20px;
   }
   .side-pane {

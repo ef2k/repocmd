@@ -26,10 +26,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .selection {
-    margin: 0 0 30px 0;
+    margin: 0 0 5px 0;
     display: grid;
     grid-template-columns: 40px auto;
     grid-column-gap: 5px;
+    padding: 15px;
   }
   .icon-wrapper {
     width: 40px;
