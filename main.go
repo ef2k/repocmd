@@ -16,35 +16,20 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type commit struct {
-	ID              githubql.ID     `json:"id"`
-	AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
-	MessageHeadline githubql.String `json:"message"`
+type fromOldestTimeSlice []repository
+
+func (r fromOldestTimeSlice) Len() int {
+	return len(r)
+}
+func (r fromOldestTimeSlice) Less(i, j int) bool {
+	return r[i].PushedAt.After(r[j].PushedAt.Time)
+}
+func (r fromOldestTimeSlice) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
 }
 
-type target struct {
-	Commit commit `json:"commit" graphql:"... on Commit"`
-}
-
-type commitComments struct {
-	Nodes      []commit
+type totalCount struct {
 	TotalCount githubql.Int `json:"totalCount"`
-}
-
-type stargazers struct {
-	TotalCount githubql.Int `json:"totalCount"`
-}
-
-type watchers struct {
-	TotalCount githubql.Int `json:"totalCount"`
-}
-
-type forks struct {
-	TotalCount githubql.Int `json:"totalCount"`
-}
-
-type ref struct {
-	Target target `json:"target"`
 }
 
 type repository struct {
@@ -59,22 +44,18 @@ type repository struct {
 	IsArchived    githubql.Boolean  `json:"isArchived"`
 	IsFork        githubql.Boolean  `json:"isFork"`
 	IsPrivate     githubql.Boolean  `json:"isPrivate"`
-	Stargazers    stargazers        `json:"stargazers"`
-	Watchers      watchers          `json:"watchers"`
-	Forks         forks             `json:"forks"`
-	Ref           ref               `json:"ref" graphql:"ref(qualifiedName:master)"`
-}
-
-type fromOldestTimeSlice []repository
-
-func (r fromOldestTimeSlice) Len() int {
-	return len(r)
-}
-func (r fromOldestTimeSlice) Less(i, j int) bool {
-	return r[i].PushedAt.After(r[j].PushedAt.Time)
-}
-func (r fromOldestTimeSlice) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
+	Stargazers    totalCount        `json:"stargazers"`
+	Watchers      totalCount        `json:"watchers"`
+	Forks         totalCount        `json:"forks"`
+	Ref           struct {
+		Target struct {
+			Commit struct {
+				ID              githubql.ID     `json:"id"`
+				AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
+				MessageHeadline githubql.String `json:"message"`
+			} `json:"commit" graphql:"... on Commit"`
+		} `json:"target"`
+	} `json:"ref" graphql:"ref(qualifiedName:master)"`
 }
 
 var q struct {
@@ -117,6 +98,7 @@ var (
 
 func handleGetRepos(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
 	repos, err := getRepos(client)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -131,6 +113,7 @@ func handleGetRepos(w http.ResponseWriter, r *http.Request) {
 
 func handlePatchRepo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
 	dec := json.NewDecoder(r.Body)
 	var repo repository
 	if err := dec.Decode(&repo); err != nil {
