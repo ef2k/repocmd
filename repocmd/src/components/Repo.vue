@@ -74,9 +74,10 @@ export default {
     background: var(--light-gray);
     overflow: auto;
     display: grid;
-    max-width: 400px;
-    grid-template-columns: auto 40px;
-    grid-column-gap: 20px;
+    max-width: 350px;
+    grid-template-columns: auto 30px;
+    grid-column-gap: 10px;
+    transition: background 0.6s;
   }
   .repo.checked {
     background: var(--select-green);

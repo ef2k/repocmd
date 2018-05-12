@@ -46,7 +46,7 @@ html, body {
   color: var(--black);
   display: grid;
   grid-template-columns: 50px auto;
-  grid-column-gap: 25px;
+  grid-column-gap: 12px;
 }
 .navbar {
   background: black;

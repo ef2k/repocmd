@@ -1,6 +1,6 @@
 <template>
-  <div class="selection-list" :style="{ height: height+'px', maxHeight: height+'px'}">
-    <selection v-for="repo of repos" v-bind:key="repo.id" :repo="repo"/>
+  <div class="selection-list" :style="{ height: listHeight+'px', maxHeight: listHeight+'px'}">
+    <selection v-for="repo of repos" v-bind:key="repo.id" :repo="repo" @unchecked="unchecked"/>
   </div>
 </template>
 
@@ -15,7 +15,25 @@ export default {
     'repos',
     'height'
   ],
-  computed: {
+  data () {
+    return {
+      listHeight: document.documentElement.clientHeight
+    }
+  },
+  mounted () {
+    window.addEventListener('resize', this.handleResize)
+    this.handleResize()
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.handleResize)
+  },
+  methods: {
+    handleResize () {
+      this.listHeight = document.documentElement.clientHeight
+    },
+    unchecked (repo) {
+      this.$emit('unchecked', repo)
+    }
   }
 }
 </script>

@@ -27,7 +27,7 @@
   </div>
   <div class="main-pane" :style="{ height: winHeight+'px', maxHeight: winHeight+'px'}">
     <transition name="fade">
-      <selection-page v-if="hasSelected" :repos="selected"/>
+      <selection-page v-if="hasSelected" :repos="selected" @unchecked="uncheckRepo"/>
     </transition>
   </div>
 </div>
@@ -135,7 +135,7 @@ export default {
 <style lang="scss" scoped>
   .repo-list {
     display: grid;
-    grid-template-columns: 470px auto;
+    grid-template-columns: 405px auto;
     grid-column-gap: 20px;
   }
   .side-pane {

@@ -2,9 +2,14 @@
 <div class="selection-page">
   <div class="selection-header">
     <h3>Selected Repositories ({{selectedLen}})</h3>
+    <!-- <p class="selection-links">
+      <i data-feather="delete"></i><a href="#">Clear Selection</a>
+    </p> -->
   </div>
-  <selection-list :repos="repos" :height="listHeight"/>
-  <selection-actions/>
+  <div class="wrapper">
+    <selection-list :repos="repos" :height="listHeight" @unchecked="unchecked" />
+    <selection-actions :repos="repos"/>
+  </div>
 </div>
 </template>
 
@@ -37,6 +42,9 @@ export default {
       const styles = window.getComputedStyle(el)
       return parseFloat(styles.marginTop) + parseFloat(styles.marginBottom)
     },
+    unchecked (repo) {
+      this.$emit('unchecked', repo)
+    },
     calculateListHeight () {
       const winHeight = document.documentElement.clientHeight
 
@@ -64,11 +72,11 @@ export default {
     }
   },
   mounted () {
-    window.addEventListener('resize', this.calculateListHeight)
-    this.calculateListHeight()
+    // window.addEventListener('resize', this.calculateListHeight)
+    // this.calculateListHeight()
   },
   beforeDestroy () {
-    window.removeEventListener('resize', this.calculateListHeight)
+    // window.removeEventListener('resize', this.calculateListHeight)
   }
 }
 </script>
@@ -77,12 +85,30 @@ export default {
 .selection-page {
   padding-right: 20px;
 }
+.wrapper {
+  display: grid;
+  grid-template-columns: minmax(400px, auto) minmax(200px, 300px);
+  grid-column-gap: 20px;
+}
 .selection-header {
   overflow: auto;
-  padding: 0 20px;
+  padding: 0;
   text-align: left;
   h3 {
     font-size: 20px;
+  }
+  .selection-links {
+    .feather {
+      vertical-align: middle;
+      height: 18px;
+    }
+    a {
+      color: var(--bright-blue);
+      font-weight: bold;
+      text-decoration: none;
+      vertical-align: middle;
+      margin-left: 3px;
+    }
   }
 }
 </style>

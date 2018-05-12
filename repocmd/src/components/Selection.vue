@@ -6,7 +6,12 @@
     <div class="select-details">
       <h4>{{repo.name}}</h4>
       <p class="description">{{repo.description}}</p>
-      <p class="date">Last committed on <strong>{{repo.pushedAt | moment("MMMM Do, YYYY")}}</strong></p>
+      <p class="date">Last commit: <strong>{{repo.pushedAt | moment("MMMM Do, YYYY")}}</strong></p>
+    </div>
+    <div class="icon-remove">
+      <span @click="remove(repo)">
+      <i data-feather="x-circle"></i>
+      </span>
     </div>
   </div>
 </template>
@@ -19,22 +24,28 @@ export default {
   props: ['repo'],
   mounted () {
     feather.replace()
+  },
+  methods: {
+    remove (repo) {
+      this.$emit('unchecked', repo)
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
   .selection {
-    margin: 0 0 5px 0;
+    margin: 0 0 10px 0;
     display: grid;
-    grid-template-columns: 40px auto;
-    grid-column-gap: 5px;
-    padding: 15px;
+    grid-template-columns: 20px auto 25px;
+    grid-column-gap: 12px;
+    padding: 12px 14px;
+    background: #f9f9f9;
   }
   .icon-wrapper {
-    width: 40px;
-    text-align: center;
+    width: 20px;
+    text-align: left;
   }
   .icon-wrapper .feather {
     margin-top: 2px;
@@ -47,11 +58,23 @@ export default {
   }
   .select-details h4 {
     margin-bottom: 5px;
+    font-size: 16px;
   }
   .select-details .description {
+    font-size: 14px;
     margin-bottom: 5px;
   }
   .select-details .date {
     font-size: 14px;
+  }
+  .icon-remove {
+    .feather {
+      color: #c0c0c0;
+      transition: color 0.3s;
+    }
+    .feather:hover {
+      color: red;
+      cursor: pointer;
+    }
   }
 </style>
