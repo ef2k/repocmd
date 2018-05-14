@@ -53,6 +53,14 @@ type repository struct {
 				ID              githubql.ID     `json:"id"`
 				AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
 				MessageHeadline githubql.String `json:"message"`
+				// History struct {
+				// 	TotalCount githubql.Int `json:"totalCount"`
+				// 	Nodes      []struct {
+				// 		ID              githubql.ID     `json:"id"`
+				// 		AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
+				// 		MessageHeadline githubql.String `json:"message"`
+				// 	} `json:"edges"`
+				// } `json:"history" graphql:"history(first: 3)"`
 			} `json:"commit" graphql:"... on Commit"`
 		} `json:"target"`
 	} `json:"ref" graphql:"ref(qualifiedName:master)"`
