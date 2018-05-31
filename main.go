@@ -11,6 +11,7 @@ import (
 	"sort"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 
 	"github.com/shurcooL/githubql"
 	"golang.org/x/oauth2"
@@ -105,7 +106,6 @@ var (
 )
 
 func handleGetRepos(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	repos, err := getRepos(client)
 	if err != nil {
@@ -120,7 +120,6 @@ func handleGetRepos(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePatchRepo(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	dec := json.NewDecoder(r.Body)
 	var repo repository
@@ -168,8 +167,13 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/repos", handleGetRepos).Methods("GET")
-	r.HandleFunc("/repos", handlePatchRepo).Methods("PATCH")
-	http.Handle("/", r)
+	r.HandleFunc("/repos", handlePatchRepo).Methods("POST")
 
-	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	h := c.Handler(r)
+	http.ListenAndServe(":"+os.Getenv("PORT"), h)
 }
