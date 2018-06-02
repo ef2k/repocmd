@@ -17,6 +17,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var (
+	OWNER               = "owner"
+	COLLABORATOR        = "collaborator"
+	ORGANIZATION_MEMBER = "organizationMember"
+)
+
 type fromOldestTimeSlice []repository
 
 func (r fromOldestTimeSlice) Len() int {
@@ -67,7 +73,7 @@ type repository struct {
 	} `json:"ref" graphql:"ref(qualifiedName:master)"`
 }
 
-var q struct {
+var ownerQ struct {
 	Viewer struct {
 		Repositories struct {
 			Nodes    []repository
@@ -78,21 +84,85 @@ var q struct {
 		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[OWNER])"`
 	}
 }
+var collabQ struct {
+	Viewer struct {
+		Repositories struct {
+			Nodes    []repository
+			PageInfo struct {
+				EndCursor   githubql.String
+				HasNextPage githubql.Boolean
+			}
+		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[COLLABORATOR])"`
+	}
+}
+var orgQ struct {
+	Viewer struct {
+		Repositories struct {
+			Nodes    []repository
+			PageInfo struct {
+				EndCursor   githubql.String
+				HasNextPage githubql.Boolean
+			}
+		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[ORGANIZATION_MEMBER])"`
+	}
+}
 
-func getRepos(client *githubql.Client) ([]repository, error) {
+func getOwnerRepos(client *githubql.Client) ([]repository, error) {
 	variables := map[string]interface{}{
 		"repositoriesCursor": (*githubql.String)(nil),
 	}
 	var repos []repository
 	for {
-		if err := client.Query(context.Background(), &q, variables); err != nil {
+		if err := client.Query(context.Background(), &ownerQ, variables); err != nil {
 			return nil, err
 		}
-		repos = append(repos, q.Viewer.Repositories.Nodes...)
-		if !q.Viewer.Repositories.PageInfo.HasNextPage {
+		repos = append(repos, ownerQ.Viewer.Repositories.Nodes...)
+		if !ownerQ.Viewer.Repositories.PageInfo.HasNextPage {
 			break
 		}
-		variables["repositoriesCursor"] = githubql.NewString(q.Viewer.Repositories.PageInfo.EndCursor)
+		variables["repositoriesCursor"] = githubql.NewString(ownerQ.Viewer.Repositories.PageInfo.EndCursor)
+	}
+	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
+	timeSortedRepos = append(timeSortedRepos, repos...)
+	sort.Sort(timeSortedRepos)
+	return timeSortedRepos, nil
+}
+
+func getCollabRepos(client *githubql.Client) ([]repository, error) {
+	variables := map[string]interface{}{
+		"repositoriesCursor": (*githubql.String)(nil),
+	}
+	var repos []repository
+	for {
+		if err := client.Query(context.Background(), &collabQ, variables); err != nil {
+			return nil, err
+		}
+		repos = append(repos, collabQ.Viewer.Repositories.Nodes...)
+		if !collabQ.Viewer.Repositories.PageInfo.HasNextPage {
+			break
+		}
+		variables["repositoriesCursor"] = githubql.NewString(collabQ.Viewer.Repositories.PageInfo.EndCursor)
+	}
+	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
+	timeSortedRepos = append(timeSortedRepos, repos...)
+	sort.Sort(timeSortedRepos)
+	return timeSortedRepos, nil
+}
+
+func getOrgRepos(client *githubql.Client) ([]repository, error) {
+	variables := map[string]interface{}{
+		"repositoriesCursor": (*githubql.String)(nil),
+	}
+	var repos []repository
+	for {
+		if err := client.Query(context.Background(), &orgQ, variables); err != nil {
+			return nil, err
+		}
+		repos = append(repos, orgQ.Viewer.Repositories.Nodes...)
+		if !orgQ.Viewer.Repositories.PageInfo.HasNextPage {
+			break
+		}
+		variables["repositoriesCursor"] = githubql.NewString(orgQ.Viewer.Repositories.PageInfo.EndCursor)
 	}
 	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
 	timeSortedRepos = append(timeSortedRepos, repos...)
@@ -107,7 +177,16 @@ var (
 
 func handleGetRepos(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	repos, err := getRepos(client)
+	af := r.URL.Query().Get("affiliation")
+	var repos []repository
+	var err error
+	if af == COLLABORATOR {
+		repos, err = getCollabRepos(client)
+	} else if af == ORGANIZATION_MEMBER {
+		repos, err = getOrgRepos(client)
+	} else {
+		repos, err = getOwnerRepos(client)
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
