@@ -20,6 +20,12 @@
   version = "v1.6.1"
 
 [[projects]]
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
+
+[[projects]]
   name = "github.com/rs/cors"
   packages = ["."]
   revision = "ca016a06a5753f8ba03029c0aa5e54afb1bf713f"
@@ -82,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "44655bc06c4b02c183690de95a0e204506ed969ff9c6595a8af49368ae1192bf"
+  inputs-digest = "f76c7299eb506a283b74264da9c1219b21d5fe667e5bb7ade0b9e9e0ab0a2a4d"
   solver-name = "gps-cdcl"
   solver-version = 1

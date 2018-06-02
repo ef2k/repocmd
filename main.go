@@ -9,15 +9,18 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
+	"github.com/patrickmn/go-cache"
 	"github.com/shurcooL/githubql"
 	"golang.org/x/oauth2"
 )
 
 var (
+	c                   = cache.New(1*time.Minute, 2*time.Minute)
 	OWNER               = "owner"
 	COLLABORATOR        = "collaborator"
 	ORGANIZATION_MEMBER = "organizationMember"
@@ -108,6 +111,11 @@ var orgQ struct {
 }
 
 func getOwnerRepos(client *githubql.Client) ([]repository, error) {
+	cached, found := c.Get(OWNER)
+	if found {
+		return cached.(fromOldestTimeSlice), nil
+	}
+
 	variables := map[string]interface{}{
 		"repositoriesCursor": (*githubql.String)(nil),
 	}
@@ -125,10 +133,16 @@ func getOwnerRepos(client *githubql.Client) ([]repository, error) {
 	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
 	timeSortedRepos = append(timeSortedRepos, repos...)
 	sort.Sort(timeSortedRepos)
+	c.Set(OWNER, timeSortedRepos, cache.DefaultExpiration)
 	return timeSortedRepos, nil
 }
 
 func getCollabRepos(client *githubql.Client) ([]repository, error) {
+	cached, found := c.Get(COLLABORATOR)
+	if found {
+		return cached.(fromOldestTimeSlice), nil
+	}
+
 	variables := map[string]interface{}{
 		"repositoriesCursor": (*githubql.String)(nil),
 	}
@@ -146,10 +160,16 @@ func getCollabRepos(client *githubql.Client) ([]repository, error) {
 	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
 	timeSortedRepos = append(timeSortedRepos, repos...)
 	sort.Sort(timeSortedRepos)
+	c.Set(COLLABORATOR, timeSortedRepos, cache.DefaultExpiration)
 	return timeSortedRepos, nil
 }
 
 func getOrgRepos(client *githubql.Client) ([]repository, error) {
+	cached, found := c.Get(ORGANIZATION_MEMBER)
+	if found {
+		return cached.(fromOldestTimeSlice), nil
+	}
+
 	variables := map[string]interface{}{
 		"repositoriesCursor": (*githubql.String)(nil),
 	}
@@ -167,6 +187,7 @@ func getOrgRepos(client *githubql.Client) ([]repository, error) {
 	timeSortedRepos := make(fromOldestTimeSlice, 0, len(repos))
 	timeSortedRepos = append(timeSortedRepos, repos...)
 	sort.Sort(timeSortedRepos)
+	c.Set(ORGANIZATION_MEMBER, timeSortedRepos, cache.DefaultExpiration)
 	return timeSortedRepos, nil
 }
 
