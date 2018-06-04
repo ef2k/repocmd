@@ -33,6 +33,7 @@ func main() {
 
 	r.HandleFunc("/repos", handleGetRepos).Methods("GET")
 	r.HandleFunc("/repos", handlePatchRepo).Methods("POST")
+	r.HandleFunc("/feed/{owner}/{name}", handleGetFeed).Methods("GET")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

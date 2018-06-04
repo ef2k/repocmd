@@ -70,7 +70,8 @@ func handlePatchRepo(w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		log.Print(err)
+		http.Error(w, err.Error(), resp.StatusCode)
+		return
 	}
-	log.Printf("response: %v", resp)
+	copyResponse(w, resp)
 }
