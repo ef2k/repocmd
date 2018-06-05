@@ -45,54 +45,24 @@ type repository struct {
 				ID              githubql.ID     `json:"id"`
 				AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
 				MessageHeadline githubql.String `json:"message"`
-				// History struct {
-				// 	TotalCount githubql.Int `json:"totalCount"`
-				// 	Nodes      []struct {
-				// 		ID              githubql.ID     `json:"id"`
-				// 		AbbreviatedOID  githubql.String `json:"abbreviatedOid"`
-				// 		MessageHeadline githubql.String `json:"message"`
-				// 	} `json:"edges"`
-				// } `json:"history" graphql:"history(first: 3)"`
 			} `json:"commit" graphql:"... on Commit"`
 		} `json:"target"`
 	} `json:"ref" graphql:"ref(qualifiedName:master)"`
 }
 
-var ownerQ struct {
-	Viewer struct {
-		Repositories struct {
-			Nodes    []repository
-			PageInfo struct {
-				EndCursor   githubql.String
-				HasNextPage githubql.Boolean
-			}
-		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[OWNER])"`
-	}
-}
-var collabQ struct {
-	Viewer struct {
-		Repositories struct {
-			Nodes    []repository
-			PageInfo struct {
-				EndCursor   githubql.String
-				HasNextPage githubql.Boolean
-			}
-		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[COLLABORATOR])"`
-	}
-}
-var orgQ struct {
-	Viewer struct {
-		Repositories struct {
-			Nodes    []repository
-			PageInfo struct {
-				EndCursor   githubql.String
-				HasNextPage githubql.Boolean
-			}
-		} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[ORGANIZATION_MEMBER])"`
-	}
-}
-
 func getOwnerRepos(client *githubql.Client) ([]repository, error) {
+	var ownerQ struct {
+		Viewer struct {
+			Repositories struct {
+				Nodes    []repository
+				PageInfo struct {
+					EndCursor   githubql.String
+					HasNextPage githubql.Boolean
+				}
+			} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[OWNER])"`
+		}
+	}
+
 	cached, found := c.Get(OWNER)
 	if found {
 		return cached.(fromOldestTimeSlice), nil
@@ -120,6 +90,18 @@ func getOwnerRepos(client *githubql.Client) ([]repository, error) {
 }
 
 func getCollabRepos(client *githubql.Client) ([]repository, error) {
+	var collabQ struct {
+		Viewer struct {
+			Repositories struct {
+				Nodes    []repository
+				PageInfo struct {
+					EndCursor   githubql.String
+					HasNextPage githubql.Boolean
+				}
+			} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[COLLABORATOR])"`
+		}
+	}
+
 	cached, found := c.Get(COLLABORATOR)
 	if found {
 		return cached.(fromOldestTimeSlice), nil
@@ -147,6 +129,18 @@ func getCollabRepos(client *githubql.Client) ([]repository, error) {
 }
 
 func getOrgRepos(client *githubql.Client) ([]repository, error) {
+	var orgQ struct {
+		Viewer struct {
+			Repositories struct {
+				Nodes    []repository
+				PageInfo struct {
+					EndCursor   githubql.String
+					HasNextPage githubql.Boolean
+				}
+			} `graphql:"repositories(last:100, after:$repositoriesCursor, affiliations:[ORGANIZATION_MEMBER])"`
+		}
+	}
+
 	cached, found := c.Get(ORGANIZATION_MEMBER)
 	if found {
 		return cached.(fromOldestTimeSlice), nil

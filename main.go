@@ -27,6 +27,7 @@ func main() {
 		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
 	)
 	httpClient = oauth2.NewClient(context.Background(), src)
+	httpClient.Timeout = 10 * time.Second
 	client = githubql.NewClient(httpClient)
 
 	r := mux.NewRouter()
