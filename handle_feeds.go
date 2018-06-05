@@ -23,16 +23,22 @@ type RepoResponse struct {
 }
 
 type RepoSummary struct {
-	ID          githubql.ID      `json:"id"`
-	Description githubql.String  `json:"description"`
-	URL         githubql.URI     `json:"url"`
-	IsArchived  githubql.Boolean `json:"isArchived"`
-	IsFork      githubql.Boolean `json:"isFork"`
-	IsPrivate   githubql.Boolean `json:"isPrivate"`
-	Stargazers  totalCount       `json:"stargazers"`
-	Watchers    totalCount       `json:"watchers"`
-	Forks       totalCount       `json:"forks"`
-	SSHURL      githubql.String  `json:"sshURL"`
+	ID            githubql.ID      `json:"id"`
+	Description   githubql.String  `json:"description"`
+	URL           githubql.URI     `json:"url"`
+	IsArchived    githubql.Boolean `json:"isArchived"`
+	IsFork        githubql.Boolean `json:"isFork"`
+	IsPrivate     githubql.Boolean `json:"isPrivate"`
+	Stargazers    totalCount       `json:"stargazers"`
+	Watchers      totalCount       `json:"watchers"`
+	Forks         totalCount       `json:"forks"`
+	SSHURL        githubql.String  `json:"sshURL"`
+	Collaborators struct {
+		Nodes []struct {
+			Login     githubql.String `json:"login"`
+			AvatarURL githubql.URI    `json:"avatarURL" graphql:"avatarUrl(size: 100)"`
+		} `json:"users"`
+	} `json:"collaborators" graphql:"collaborators(first: 10)"`
 }
 
 func getRepoSummary(client *githubql.Client, owner, name string) (*RepoSummary, error) {
