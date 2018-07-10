@@ -19,7 +19,7 @@ var (
 	httpClient *http.Client
 	client     *githubql.Client
 
-	c = cache.New(1*time.Minute, 2*time.Minute)
+	c = cache.New(3*time.Minute, 3*time.Minute)
 )
 
 func main() {
